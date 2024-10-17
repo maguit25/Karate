@@ -26,15 +26,42 @@ Feature: Ejercicio 2 de prueba de NttData
     When method post
     Then status 200
 
-    * def id = response.id
-    * print 'created id is: ', id
 
-    Given path 'pet', id
+  Scenario: Consultar la mascota ingresada previamente
+
+    Given path 'pet', 123321
     When method get
+    Then response.name == 'Ninito'
+    And response.id == 123321
+
+  Scenario: Actualizar el nombre de la mascota y el estatus de la mascota a “sold”
+    * def pet =
+      """
+      {
+        "id": 123321,
+        "category": {
+          "id": 123321,
+          "name": "Perrito"
+        },
+        "name": "Sammy",
+        "photoUrls": [
+          "tmp"
+        ],
+        "tags": [],
+        "status": "sold"
+      }
+
+      """
+    Given path 'pet'
+    And request pet
+    When method put
     Then status 200
 
-    # Given path id
-    # When method get
-    # Then status 200
-    # And match response contains user
-  
+  Scenario: Consultar la mascota modificada por estatus (Búsqueda por estatus)
+
+    * def requestParams = {status: 'sold'}
+
+    Given path 'pet/findByStatus'
+    And params requestParams
+    When method get
+    Then match response contains deep {id: 123321}
